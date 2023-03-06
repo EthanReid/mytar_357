@@ -10,6 +10,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+
+char mem_block[512];
+
 typedef struct header header;
 typedef header* headerer_ptr;
 typedef struct stat stat;
@@ -34,7 +37,13 @@ struct header {
     char prefix[155];
     char padding[12];	
 };
-
-char mem_block[512];
+void populate_header(stat_ptr sp);
+void populate_header_buffer(headerer_ptr hp);
+void manage_file(FILE file);
+void archive_file(FILE file);
+void expand_directory(FILE file);
+void array_to_buffer(char* arr);
+void write_to_buffer(int ch);
+void decToOctal(int n);
 
 #endif
