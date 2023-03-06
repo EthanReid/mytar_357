@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-struct header {
+typedef struct Header {
     char name[100];
     char mode[8];
     char uid[8];
@@ -29,7 +29,7 @@ struct header {
     char devminor[8];
     char prefix[155];
     char padding[12];	
-};
+} Header;
 
 
 

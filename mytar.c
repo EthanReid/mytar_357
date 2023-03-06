@@ -8,16 +8,16 @@ char mem_block[512];
 
 
 
-
+x
 void populate_struct()
 
 
-void populateBuffer(){
+void populate_header(){
+   
 
 }
 
-
-void decToOctal(int n){
+void dec_to_octal(int n){
     // array to store octal number
     int octalNum[100];
   
