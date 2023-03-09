@@ -6,10 +6,9 @@ char mem_block[512];
 
 //generating archive first 
 
-
-
-x
-void populate_struct()
+void populate_struct(){
+    
+}
 
 
 void populate_header(){

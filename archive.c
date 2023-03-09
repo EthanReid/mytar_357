@@ -1,30 +1,79 @@
 #include "archive.h"
 
+struct dirent *direnty;
+
+struct header *headerer;
+
 void populate_header(stat_ptr sp){
     /*accepts a pointer to a stat struct
     populates the global header struct with
     data from the passed stat struct*/
+    memset(&header, 0, sizeof(header)); // clear header struct
+    strcpy(header->name, ""); // copy empty string to name field
+    snprintf(header->mode, 8, "%07o", sp->st_mode & 0777); // convert mode to octal and copy to mode field
+    snprintf(header->uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
+    snprintf(header->gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
+    snprintf(header->size, 12, "%011llo", (unsigned long long) sp->st_size); // convert size to octal and copy to size field
+    snprintf(header->mtime, 12, "%011lo", (unsigned long) sp->st_mtime); // convert mtime to octal and copy to mtime field
+    header->typeflag = '0'; // set typeflag to regular file
+    strcpy(header->linkname, ""); // copy empty string to linkname field
+    strcpy(header->magic, "ustar"); // copy "ustar" to magic field
+    strcpy(header->version, "00"); // copy "00" to version field
+    strcpy(header->uname, ""); // copy empty string to uname field
+    strcpy(header->gname, ""); // copy empty string to gname field
+    strcpy(header->devmajor, ""); // copy empty string to devmajor field
+    strcpy(header->devminor, ""); // copy empty string to devminor field
+    strcpy(header->prefix, ""); // copy empty string to prefix field
+    memset(header->padding, '\0', 52); // fill padding field with null characters
 }
-
 
 void populate_header_buffer(headerer_ptr hp){
     /*take a header_ptr
-    populates the glabal buffer with the elements of the header*/
-    ;
+    populates the global buffer with the elements of the header*/
+    memcpy(mem_block, hp, sizeof(header)); // copy header struct to mem_block   
 }
 
 void manage_file(FILE file){
     /*takes file
     if directory, archive and expand directory,
     if file, archive file*/
-    ;
-}
+    struct stat *sb;
+    if (fstat(fileno(file), sb) == -1) { // get file information
+        perror("fstat");
+        exit(EXIT_FAILURE);
+    }
+
+    if (S_ISDIR(sb->st_mode)) { // if file is a directory
+        expand_directory(file);
+    } else { // if file is a regular file
+        archive_file(file);
+    }
+};
+
 
 void archive_file(FILE file){
     /*accepts file,
     calls populate_header/buffer functions
     writes body to buffer*/
-    ;
+    struct stat sb;
+    if (fstat(fileno(file), &sb) == -1) { // get file information
+        perror("fstat");
+        exit(EXIT_FAILURE);
+    }
+
+    populate_header(&sb); // populate header with file information
+    populate_header_buffer(&header); // populate buffer with header information
+
+    size_t remaining_bytes = sb.st_size; // track remaining bytes to read
+
+    while (remaining_bytes > 0) {
+        int bytes_to_read = remaining_bytes > sizeof(mem_block) ? sizeof(mem_block) : remaining_bytes;
+        size_t bytes_read = fread(mem_block, 1, bytes_to_read, file); // read bytes from file
+        if (bytes_read != bytes_to_read) {
+            perror("fread")
+        }
+    
+    }
 }
 
 void expand_directory(FILE file){

@@ -16,9 +16,10 @@ char mem_block[512];
 typedef struct header header;
 typedef header* headerer_ptr;
 typedef struct stat stat;
-typedef stat* stat_ptr;
 
-struct header {
+typedef stat *stat_ptr;
+
+typedef struct header {
     char name[100];
     char mode[8];
     char uid[8];
@@ -36,7 +37,8 @@ struct header {
     char devminor[8];
     char prefix[155];
     char padding[12];	
-};
+} header;
+
 void populate_header(stat_ptr sp);
 void populate_header_buffer(headerer_ptr hp);
 void manage_file(FILE file);
