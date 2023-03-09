@@ -5,7 +5,7 @@ header head;
 
 void populate_header(char *name, stat_ptr sp){
     /*use snprintf to move stat data to head*/
-
+    
 }
 
 
@@ -13,7 +13,8 @@ void write_header(){
     /*memcpy head into block, if head has packed attribute,
     could also call write_byte in a loop, where each byte of head is moved to bock.
     write_block after filling if using memcpy*/
-    ;
+    memcpy(&block, &head, sizeof(head));
+    write_block();
 }
 
 void manage_file(char *name){
