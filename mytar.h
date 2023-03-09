@@ -1,3 +1,6 @@
+#include "archive.h"
+#include "blockBuffer.h"
+extern FILE *out_file;
 #ifndef MYTAR_H
 #define MYTAR_H
 

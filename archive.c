@@ -5,7 +5,22 @@ header head;
 
 void populate_header(char *name, stat_ptr sp){
     /*use snprintf to move stat data to head*/
-    
+    memset(&head, 0, sizeof(header)); // clear header struct
+    strcpy(head.name, name); // copy empty string to name field
+    snprintf(&head, 8, "%07o", sp->st_mode & 0777); // convert mode to octal and copy to mode field
+    snprintf(head.uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
+    snprintf(head.gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
+    snprintf(head.size, 12, "%011llo", (unsigned long long) sp->st_size); // convert size to octal and copy to size field
+    snprintf(head.mtime, 12, "%011lo", (unsigned long) sp->st_mtime); // convert mtime to octal and copy to mtime field
+    head.typeflag = '0'; // set typeflag to regular file
+    strcpy(head.linkname, ""); // copy empty string to linkname field
+    strcpy(head.magic, "ustar"); // copy "ustar" to magic field
+    //strcpy(head.version, "00"); // copy "00" to version field - BUG HERE, TRACE TRAP
+    strcpy(head.uname, ""); // copy empty string to uname field
+    strcpy(head.gname, ""); // copy empty string to gname field
+    strcpy(head.devmajor, ""); // copy empty string to devmajor field
+    strcpy(head.devminor, ""); // copy empty string to devminor field
+    strcpy(head.prefix, ""); // copy empty string to prefix field
 }
 
 
@@ -14,7 +29,7 @@ void write_header(){
     could also call write_byte in a loop, where each byte of head is moved to bock.
     write_block after filling if using memcpy*/
     memcpy(&block, &head, sizeof(head));
-    write_block();
+    write_block(FORCE);
 }
 
 void manage_file(char *name){
@@ -42,7 +57,7 @@ void archive_file(char *name, stat_ptr sp){
             exit(EXIT_FAILURE);
         }
         while(fread(&block, BLOCK_SIZE, 1, file)){
-            write_block();
+            write_block(FORCE);
         }
     }
     fclose(file);

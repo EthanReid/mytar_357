@@ -2,8 +2,8 @@
 #define MYTAR_H
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 #include <limits.h>
 #include <errno.h>
 #include <unistd.h>
@@ -44,5 +44,6 @@ void expand_directory(char *name);
 void array_to_buffer(char* arr);
 void write_to_buffer(int ch);
 void decToOctal(int n);
+char *concat_str(char *str1, char *str2);
 
 #endif
