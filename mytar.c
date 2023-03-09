@@ -5,6 +5,8 @@ int main(int argc, char **argv){
     //if file already exists it needs to be wiped
     out_file = fopen("testout.tar","a");
     manage_file(argv[1]);
+    write_block(FORCE);
+    write_block(FORCE);
 }
 
 char mem_block[512];

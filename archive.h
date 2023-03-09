@@ -14,10 +14,10 @@
 char mem_block[512];
 
 typedef struct header header;
-typedef header* headerer_ptr;
+typedef header* header_ptr;
 typedef struct stat* stat_ptr;
 
-struct header {
+struct __attribute__ ((__packed__)) header{
     char name[100];
     char mode[8];
     char uid[8];
@@ -37,7 +37,6 @@ struct header {
     char padding[12];	
 };
 void populate_header(char *name, stat_ptr sp);
-void populate_header_buffer(headerer_ptr hp);
 void manage_file(char *name);
 void archive_file(char *name, stat_ptr sp);
 void expand_directory(char *name);

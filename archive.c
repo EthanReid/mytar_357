@@ -6,12 +6,11 @@ header head;
 void populate_header(char *name, stat_ptr sp){
     /*use snprintf to move stat data to head*/
     memset(&head, 0, sizeof(header)); // clear header struct
-    strcpy(head.name, name); // copy empty string to name field
     snprintf(&head, 8, "%07o", sp->st_mode & 0777); // convert mode to octal and copy to mode field
     snprintf(head.uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
     snprintf(head.gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
     snprintf(head.size, 12, "%011llo", (unsigned long long) sp->st_size); // convert size to octal and copy to size field
-    snprintf(head.mtime, 12, "%011lo", (unsigned long) sp->st_mtime); // convert mtime to octal and copy to mtime field
+    snprintf(head.mtime, 12, "%011lo", (unsigned long) sp->st_mtime); // doesnt exist?
     head.typeflag = '0'; // set typeflag to regular file
     strcpy(head.linkname, ""); // copy empty string to linkname field
     strcpy(head.magic, "ustar"); // copy "ustar" to magic field
@@ -20,7 +19,11 @@ void populate_header(char *name, stat_ptr sp){
     strcpy(head.gname, ""); // copy empty string to gname field
     strcpy(head.devmajor, ""); // copy empty string to devmajor field
     strcpy(head.devminor, ""); // copy empty string to devminor field
-    strcpy(head.prefix, ""); // copy empty string to prefix field
+    
+    strncpy(head.name, name, strlen(name)%100);//copy first 100 chars of name
+    if (strlen(name)>100){
+        strncpy(head.prefix, (name+100),strlen(name)-100); //copy from element 100 until end
+    }
 }
 
 
@@ -124,6 +127,10 @@ char *concat_str(char *str1, char *str2){
     char *c_str;
     int size;
     size = strlen(str1)+strlen(str2)+2;
+    if (size>PATH_MAX){
+        perror("max path len");
+        exit(EXIT_FAILURE);
+    }
     c_str = calloc(1, size);
     snprintf(c_str, size,"%s/%s",str1, str2);
     return c_str;
