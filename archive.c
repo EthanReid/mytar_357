@@ -51,6 +51,7 @@ void archive_file(char *name, stat_ptr sp){
     populate_header(name, sp);
     write_header();
     if (S_ISREG(sp->st_mode)){
+        printf("IS FILE\n");
         file = fopen(name, "rb");
         if (file==NULL){
             perror("connot open file");
@@ -59,8 +60,9 @@ void archive_file(char *name, stat_ptr sp){
         while(fread(&block, BLOCK_SIZE, 1, file)){
             write_block(FORCE);
         }
+        write_block(FORCE);
+         fclose(file);
     }
-    fclose(file);
 }
 
 void expand_directory(char *name){
@@ -73,7 +75,8 @@ void expand_directory(char *name){
     char *dir_name;
     char *path_name;
     lstat(name, &cur_dir);
-    dir_name = concat_str(name, "/");
+    //dir_name = concat_str(name, "/");
+    dir_name = name;
     if ((directory = opendir(dir_name))==NULL) exit(EXIT_FAILURE);
     while((dirp = readdir(directory))!=NULL){
         /*get ino from name from dirent*/
@@ -81,11 +84,12 @@ void expand_directory(char *name){
         /*if ino matches passed ino (target)*/
         if ((dirp->d_name[0]!='.')&&(dir.st_ino != cur_dir.st_ino)){
             path_name = concat_str(name, dirp->d_name);
+            printf("%s\n",path_name);
             manage_file(path_name);
             free(path_name);
         }
     }
-    free(dir_name);
+    //free(dir_name);
 }
 
 void array_to_buffer(char* arr){
@@ -118,8 +122,11 @@ void decToOctal(int n){
 
 char *concat_str(char *str1, char *str2){
     char *c_str;
-    c_str = calloc(1, strlen(str1)+strlen(2));
-    snprintf(c_str, sizeof(c_str),"%s%s",str1, str2);
+    int size;
+    size = strlen(str1)+strlen(str2)+2;
+    c_str = calloc(1, size);
+    snprintf(c_str, size,"%s/%s",str1, str2);
+    return c_str;
 }
   
 

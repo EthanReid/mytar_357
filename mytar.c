@@ -2,7 +2,8 @@
 FILE *out_file;
 
 int main(int argc, char **argv){
-    out_file = fopen("testout.tar","w");
+    //if file already exists it needs to be wiped
+    out_file = fopen("testout.tar","a");
     manage_file(argv[1]);
 }
 
