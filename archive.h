@@ -1,6 +1,7 @@
 #ifndef MYTAR_H
 #define MYTAR_H
 
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

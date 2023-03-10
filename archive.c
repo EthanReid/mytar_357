@@ -1,7 +1,8 @@
 #include "archive.h"
 
 struct dirent *direnty;
-
+struct passwd *password;
+struct group *group;
 struct header *headerer;
 
 void populate_header(stat_ptr sp){
@@ -19,8 +20,10 @@ void populate_header(stat_ptr sp){
     strcpy(header->linkname, ""); // copy empty string to linkname field
     strcpy(header->magic, "ustar"); // copy "ustar" to magic field
     strcpy(header->version, "00"); // copy "00" to version field
-    strcpy(header->uname, ""); // copy empty string to uname field
-    strcpy(header->gname, ""); // copy empty string to gname field
+    password = getpwuid(sp->st_uid);
+    strcpy(header->uname, password->pw_name); // copy empty string to uname field
+    group = getgrgid(sp->st_gid);
+    strcpy(header->gname, group->gr_name); // copy empty string to gname field
     strcpy(header->devmajor, ""); // copy empty string to devmajor field
     strcpy(header->devminor, ""); // copy empty string to devminor field
     strcpy(header->prefix, ""); // copy empty string to prefix field
@@ -42,7 +45,6 @@ void manage_file(FILE file){
         perror("fstat");
         exit(EXIT_FAILURE);
     }
-
     if (S_ISDIR(sb->st_mode)) { // if file is a directory
         expand_directory(file);
     } else { // if file is a regular file
@@ -72,7 +74,6 @@ void archive_file(FILE file){
         if (bytes_read != bytes_to_read) {
             perror("fread")
         }
-    
     }
 }
 
