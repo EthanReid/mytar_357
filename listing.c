@@ -1,3 +1,4 @@
+#include "listing.h"
 /*
 In list (Table of contents) mode, mytar lists the contents of the given archive file, 
 in order, one per line. If no names are given on the command line, mytar, 
@@ -9,21 +10,27 @@ about each file as it lists them.
 */
 
 
-void list_archives(char File *file, struct Header *header, v_flag){
+
+void list_archives(struct Header *header, v_flag){
     /* Function will list contents of a tar file in stdout if passed 
     a verbose flag as the third argument, it will provide additional 
     information on permissions corresponding to the file*/
-    
-    char permissions[10];
-    char *owner_name[17];
+    struct tm *time;
+    char *permissions[10];
+    char owner_name[17];
     char file_size[8];
-    char m_time[16]; 
+    char m_time_buffer[16]; 
+
+    int file_size;
+    file_size = strtol(header->size, NULL, 8);
 
     int w_r_x_permissions;
     w_r_x_permissions = strtol(header->mode, NULL, 8);
 
-    time_t mtime;
-    m_time = strtol(header->mtime, NULL, 8);
+    
+
+    time = localtime(&m_time);
+
     //m_time = octal_to_string(header->mtime);
     //file_name is variable 
 
@@ -107,22 +114,28 @@ void list_archives(char File *file, struct Header *header, v_flag){
             //add "/" between owner and group
             strcat(owner_name, "/")
             //account for "/"
-            len_gname-=1;
+            len_gname -= 1;
             //add as much of gname as space is left 
             strncopy(owner_name, header->gname, len_gname);
         }
-         
 
+        //inserting time attributes into char buffer
+        sprintf(m_time_buffer, "%04i-%02i-%02i %02i:%02i",
+            1900 + time->tm_year,
+            time->tm_mon + 1,
+            time->tm_mday,
+            time->tm_hour,
+            time->tm_min);
 
-
-
-
-
-
-
-
+        printf("%10s %-17s %8i %16s %s\n", permissions, owner_name, file_size, m_time_buffer, file_name);
     }
-
-
-
 }
+        
+
+        
+
+
+        
+
+
+        

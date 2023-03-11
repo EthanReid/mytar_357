@@ -1,38 +1,7 @@
 #include "mytar.h"
+/*This file contains various helper methods that are used 
+across all files*/
 
-char mem_block[512];
-
-
-
-//generating archive first 
-
-void populate_struct(){
+int main(int argc, char*argv[]){
     
 }
-
-
-void populate_header(){
-   
-
-}
-
-void dec_to_octal(int n){
-    // array to store octal number
-    int octalNum[100];
-  
-    // counter for octal number array
-    int i = 0;
-    while (n != 0) {
-  
-        // storing remainder in octal array
-        octalNum[i] = n % 8;
-        n = n / 8;
-        i++;
-    }
-  
-    // printing octal number array in reverse order
-    for (int j = i - 1; j >= 0; j--)
-        printf("%d", octalNum[j]);
-}
-  
-
