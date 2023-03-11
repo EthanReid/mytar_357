@@ -6,7 +6,7 @@ header head;
 void populate_header(char *name, stat_ptr sp){
     /*use snprintf to move stat data to head*/
     memset(&head, 0, sizeof(header)); // clear header struct
-    snprintf(&head, 8, "%07o", sp->st_mode & 0777); // convert mode to octal and copy to mode field
+    snprintf(head.mode, 8, "%07o", sp->st_mode & 0777); //why 0077?
     snprintf(head.uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
     snprintf(head.gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
     snprintf(head.size, 12, "%011llo", (unsigned long long) sp->st_size); // convert size to octal and copy to size field
