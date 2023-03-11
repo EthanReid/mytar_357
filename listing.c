@@ -1,4 +1,5 @@
 #include "listing.h"
+
 /*
 In list (Table of contents) mode, mytar lists the contents of the given archive file, 
 in order, one per line. If no names are given on the command line, mytar, 
@@ -9,14 +10,12 @@ If the verbose (’v’) option is set, mytar gives expanded information
 about each file as it lists them.
 */
 
-
-
 void list_archives(struct Header *header, v_flag){
     /* Function will list contents of a tar file in stdout if passed 
     a verbose flag as the third argument, it will provide additional 
     information on permissions corresponding to the file*/
     struct tm *time;
-    char *permissions[10];
+    char permissions[10];
     char owner_name[17];
     char file_size[8];
     char m_time_buffer[16]; 
@@ -46,7 +45,7 @@ void list_archives(struct Header *header, v_flag){
         elif (header->typeflag == REGULAR_FILE) {
             permissions[0] = '-';
         } 
-        elif (header->typeflag == DIRECTORY) {
+        else (header->typeflag == DIRECTORY) {
             permissions[0] = 'd';
         }
         //must populate rest of the array with permissions info
@@ -112,7 +111,7 @@ void list_archives(struct Header *header, v_flag){
             //compute how
             int len_gname = (17 - (strlen(header->uname)));
             //add "/" between owner and group
-            strcat(owner_name, "/")
+            strcat(owner_name, "/");
             //account for "/"
             len_gname -= 1;
             //add as much of gname as space is left 
