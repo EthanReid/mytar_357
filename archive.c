@@ -1,7 +1,32 @@
 #include "archive.h"
 #include "mytar.h"
 #include "blockBuffer.h"
+
 header head;
+// void populate_header(stat_ptr sp){
+//     /*accepts a pointer to a stat struct
+//     populates the global header struct with
+//     data from the passed stat struct*/
+//     memset(&header, 0, sizeof(header)); // clear header struct
+//     strcpy(header->name, ""); // copy empty string to name field
+//     snprintf(header->mode, 8, "%07o", sp->st_mode & 0777); // convert mode to octal and copy to mode field
+//     snprintf(header->uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
+//     snprintf(header->gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
+//     snprintf(header->size, 12, "%011llo", (unsigned long long) sp->st_size); // convert size to octal and copy to size field
+//     snprintf(header->mtime, 12, "%011lo", (unsigned long) sp->st_mtime); // convert mtime to octal and copy to mtime field
+//     header->typeflag = '0'; // set typeflag to regular file
+//     strcpy(header->linkname, ""); // copy empty string to linkname field
+//     strcpy(header->magic, "ustar"); // copy "ustar" to magic field
+//     strcpy(header->version, "00"); // copy "00" to version field
+//     password = getpwuid(sp->st_uid);
+//     strcpy(header->uname, password->pw_name); // copy empty string to uname field
+//     group = getgrgid(sp->st_gid);
+//     strcpy(header->gname, group->gr_name); // copy empty string to gname field
+//     strcpy(header->devmajor, ""); // copy empty string to devmajor field
+//     strcpy(header->devminor, ""); // copy empty string to devminor field
+//     strcpy(header->prefix, ""); // copy empty string to prefix field
+//     memset(header->padding, '\0', 52); // fill padding field with null characters
+// }
 
 void populate_header(char *name, stat_ptr sp){
     /*use snprintf to move stat data to head*/
@@ -17,8 +42,10 @@ void populate_header(char *name, stat_ptr sp){
     //strcpy(head.version, "00"); // copy "00" to version field - BUG HERE, TRACE TRAP
     head.version[0] = '0';
     head.version[1] = '0';
-    strcpy(head.uname, ""); // copy empty string to uname field
-    strcpy(head.gname, ""); // copy empty string to gname field
+    password = getpwuid(sp->st_uid); 
+    strcpy(head.uname, password->pw_name); // copy empty string to uname field
+    group = getgrgid(sp->st_gid);
+    strcpy(head.gname, group->gr_name); // copy empty string to gname field
     strcpy(head.devmajor, ""); // copy empty string to devmajor field
     strcpy(head.devminor, ""); // copy empty string to devminor field
     

@@ -14,6 +14,11 @@
 
 char mem_block[512];
 
+struct dirent *direnty;
+struct passwd *password;
+struct group *group;
+//struct header *headerer;
+
 typedef struct header header;
 typedef header* headerer_ptr;
 typedef struct stat stat;
