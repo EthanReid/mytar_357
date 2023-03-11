@@ -15,6 +15,8 @@ void populate_header(char *name, stat_ptr sp){
     strcpy(head.linkname, ""); // copy empty string to linkname field
     strcpy(head.magic, "ustar"); // copy "ustar" to magic field
     //strcpy(head.version, "00"); // copy "00" to version field - BUG HERE, TRACE TRAP
+    head.version[0] = '0';
+    head.version[1] = '0';
     strcpy(head.uname, ""); // copy empty string to uname field
     strcpy(head.gname, ""); // copy empty string to gname field
     strcpy(head.devmajor, ""); // copy empty string to devmajor field
