@@ -22,9 +22,12 @@ void populate_header(char *name, stat_ptr sp){
     strcpy(head.devmajor, ""); // copy empty string to devmajor field
     strcpy(head.devminor, ""); // copy empty string to devminor field
     
-    strncpy(head.name, name, strlen(name)%100);//copy first 100 chars of name
+    //copy first 100 chars of name
     if (strlen(name)>100){
+        strncpy(head.name, name, 100);
         strncpy(head.prefix, (name+100),strlen(name)-100); //copy from element 100 until end
+    }else{
+        strncpy(head.name, name, strlen(name)%101);
     }
 }
 
