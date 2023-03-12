@@ -1,3 +1,6 @@
+#ifndef MYTAR_H
+#define MYTAR_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,10 +12,12 @@
 #include <dirent.h>
 #include "archive.h"
 #include "blockBuffer.h"
+#include "listing.h"
+
+// struct header head;
 
 extern FILE *out_file;
-#ifndef MYTAR_H
-#define MYTAR_H
+
 
 // typedef struct Header {
 //     char name[100];

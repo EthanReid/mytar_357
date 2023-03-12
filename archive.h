@@ -1,5 +1,5 @@
-#ifndef MYTAR_H
-#define MYTAR_H
+#ifndef ARCHIVE_H
+#define ARCHIVE_H
 
 #include <time.h>
 #include <stdio.h>
@@ -11,11 +11,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <pwd.h>
+#include <grp.h>
 
 char mem_block[512];
 
 typedef struct header header;
+
 typedef header* header_ptr;
+
 typedef struct stat* stat_ptr;
 
 struct __attribute__ ((__packed__)) header{
@@ -37,6 +41,8 @@ struct __attribute__ ((__packed__)) header{
     char prefix[155];
     char padding[12];	
 };
+
+header head;
 
 // struct dirent *direnty;
 // struct passwd *password;
@@ -67,15 +73,25 @@ struct __attribute__ ((__packed__)) header{
 //     char devminor[8];
 //     char prefix[155];
 //     char padding[12];	
-// } header;
+// } typedef header;
 
-void populate_header(stat_ptr sp);
-void populate_header_buffer(headerer_ptr hp);
-void manage_file(FILE file);
-void archive_file(FILE file);
-void expand_directory(FILE file);
+
+// void populate_header(char *name, stat_ptr sp);
+// void populate_header_buffer(header_ptr hp);
+// void manage_file(FILE file);
+// void archive_file(FILE file);
+// void expand_directory(FILE file);
+// void array_to_buffer(char* arr);
+// void write_to_buffer(int ch);
+// void decToOctal(int n);
+
+void populate_header(char *name, stat_ptr sp);
+void manage_file(char *name);
+void archive_file(char *name, stat_ptr sp);
+void expand_directory(char *name);
 void array_to_buffer(char* arr);
 void write_to_buffer(int ch);
 void decToOctal(int n);
+char *concat_str(char *str1, char *str2);
 
 #endif

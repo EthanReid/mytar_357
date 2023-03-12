@@ -2,7 +2,7 @@
 #include "mytar.h"
 #include "blockBuffer.h"
 
-header head;
+struct header head;
 // void populate_header(stat_ptr sp){
 //     /*accepts a pointer to a stat struct
 //     populates the global header struct with
@@ -29,6 +29,8 @@ header head;
 // }
 
 void populate_header(char *name, stat_ptr sp){
+    struct passwd *password;
+    struct group *group;
     /*use snprintf to move stat data to head*/
     memset(&head, 0, sizeof(header)); // clear header struct
     snprintf(head.mode, 8, "%07o", sp->st_mode & 0777); //why 0077?
@@ -78,7 +80,7 @@ void manage_file(char *name){
     lstat(name, sp);
     archive_file(name, sp);
     if (S_ISDIR(sp->st_mode)) expand_directory(name);
-}
+} 
 
 //force macro implemented
 void archive_file(char *name, stat_ptr sp){
