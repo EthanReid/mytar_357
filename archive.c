@@ -1,8 +1,10 @@
 #include "archive.h"
-#include "mytar.h"
 #include "blockBuffer.h"
 
-struct header head;
+//#include "mytar.h"
+//#include "blockBuffer.h"
+
+//struct header head;
 // void populate_header(stat_ptr sp){
 //     /*accepts a pointer to a stat struct
 //     populates the global header struct with

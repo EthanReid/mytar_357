@@ -1,7 +1,8 @@
 #include "listing.h"
-#include "mytar.h"
 #include "archive.h"
-#include "blockBuffer.h"
+//#include "mytar.h"
+//#include "archive.h"
+//#include "blockBuffer.h"
 
 /*
 In list (Table of contents) mode, mytar lists the contents of the given archive file, 
@@ -141,19 +142,23 @@ void list_archives(int v_flag){
 //archive = file pointer declared in mytar.c   
 
 int print_archive(FILE *in_file, int v_flag) {
+    /*Function will get name of tar file passed in, will be passed along to
+    list_archives()*/
     //open file passed in
-    //global header pointer header_ptr declared in archive.h
+    //
     int i;
     int result;
     //will come from concatting name & pre-fix after reading in struct
     //char *file_name[257];
+    //declared file_name as a global array
     char *name_offset;
 
+    //while reading the header into the struct is possible
     while ((fread(&head, 512, 1, in_file))!=0 ){
         int name_len = strlen(head.name);
         int prefix_len = strlen(head.prefix);
-        //case where prefix does not exist 
-        //will not be concatenated to the name
+        //case where prefix does not exist will not be concatenated to the name
+        //generating file name without pre-fix
         if (strlen(head.prefix) == 0){ 
             strncpy(file_name, head.name, name_len);      
         }

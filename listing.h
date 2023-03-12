@@ -15,8 +15,8 @@
 #include <utime.h>
 #include "mytar.h"
 
-int v_flag = 0;
-int S_flag = 0;
+// int v_flag = 0;
+// int S_flag = 0;
 
 #define REGULAR_FILE '0'
 #define SYM_LINK '2'
