@@ -1,4 +1,7 @@
 #include "listing.h"
+#include "mytar.h"
+#include "archive.h"
+#include "blockBuffer.h"
 
 /*
 In list (Table of contents) mode, mytar lists the contents of the given archive file, 
@@ -10,7 +13,12 @@ If the verbose (’v’) option is set, mytar gives expanded information
 about each file as it lists them.
 */
 
-void list_archives(struct Header *header, v_flag){
+
+//must read the file into the global header 
+
+
+
+void list_archives(v_flag){
     /* Function will list contents of a tar file in stdout if passed 
     a verbose flag as the third argument, it will provide additional 
     information on permissions corresponding to the file*/
@@ -26,7 +34,7 @@ void list_archives(struct Header *header, v_flag){
     int w_r_x_permissions;
     w_r_x_permissions = strtol(header->mode, NULL, 8);
 
-    
+
 
     time = localtime(&m_time);
 
@@ -104,18 +112,18 @@ void list_archives(struct Header *header, v_flag){
         else {
             permissions[9] = '-';
         }
-        if (strlen(header->uname)>17){
-            strncopy(owner_name, header->uname, 17);
+        if (strlen(head.uname)>17){
+            strncopy(owner_name, head.uname, 17);
         }
         else{
             //compute how
-            int len_gname = (17 - (strlen(header->uname)));
+            int len_gname = (17 - (strlen(head.uname)));
             //add "/" between owner and group
             strcat(owner_name, "/");
             //account for "/"
             len_gname -= 1;
             //add as much of gname as space is left 
-            strncopy(owner_name, header->gname, len_gname);
+            strncopy(owner_name, head.gname, len_gname);
         }
 
         //inserting time attributes into char buffer
@@ -130,7 +138,61 @@ void list_archives(struct Header *header, v_flag){
     }
 }
         
+//archive = file pointer declared in mytar.c   
 
+int print_archive(in_file, v_flag) {
+    //open file passed in
+    
+    //global header pointer header_ptr declared in archive.h
+    int i;
+    int result;
+    //will come from concatting name & pre-fix after reading in struct
+    char file_name[257];
+    char *name_offset;
+
+    while ((fread(header_ptr, 512, 1, in_file))!=0 ){
+        int name_len = strlen(header_ptr->name);
+        int prefix_len = strlen(header_ptr->prefix);
+        //case where prefix does not exist 
+        //will not be concatenated to the name
+        if strlen(header_ptr->prefix) == 0{ 
+            strncpy(file_name, header_ptr->name, name_len);      
+        }
+        else{
+            //case where pre-fix is not empty
+            strncpy(file_name, header_ptr->prefix, prefix_len);
+            file_name[prefix_len] = '/';
+            name_offset = &file_name + prefix_len + 1;
+            strncpy(name_offset, header_ptr->name, strlen(name));
+            
+        }
+    }
+
+
+
+    /* Loop rad the each header */
+    while (read_header(archive, header) != 0) {
+        /* Create a char of the name of the file */
+        create_name(file_name, header->prefix, header->name);
+
+        /* If no files are given, print the whole archive */
+        if (argc < 4) {
+            list_archives(file_name, header, verbose_flag);
+        } else {
+            /* If files are given, find each one in the order given */
+            for (i = 3; i < argc; i++) {
+                /* Check if current file is the same as the file passed */
+                if (check_file(file_name, argv[i]) == 0) {
+                    /* If it is, print */
+                    list_archives(file_name, header, verbose_flag);
+                }
+            }
+        }
+    }
+    /* Close oopened files */
+    fclose(archive);
+    return result;
+}
         
 
 
