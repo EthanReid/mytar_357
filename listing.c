@@ -1,5 +1,7 @@
 #include "listing.h"
 #include "archive.h"
+
+//#include "mytar.h"
 //#include "mytar.h"
 //#include "archive.h"
 //#include "blockBuffer.h"
@@ -17,7 +19,7 @@ about each file as it lists them.
 
 //must read the file into the global header 
 
-void list_archives(int v_flag){
+void list_archives(char *file_name, int v_flag){
     /* Function will list contents of a tar file in stdout if passed 
     a verbose flag as the third argument, it will provide additional 
     information on permissions corresponding to the file*/
@@ -139,9 +141,25 @@ void list_archives(int v_flag){
     }
 }
         
+
 //archive = file pointer declared in mytar.c   
 
-int print_archive(FILE *in_file, int v_flag) {
+int check_file(char *file, char *compare) {
+    char file_buffer[strlen(compare) + 1];
+    char compare_buffer[strlen(compare) + 1];
+    
+    /* sets the two buffers to all '\0' */
+    memset(file_buffer, '\0', strlen(compare) + 1);
+    memset(compare_buffer, '\0', strlen(compare) + 1);
+    /* Copies the file name into the file buffer with the same number of characters as its compared to name */
+    strncpy(file_buffer, file, strlen(compare));
+    /* Copies the compared to name to the compared buffer */
+    strcpy(compare_buffer, compare);
+    /* return the compared result */
+    return strcmp(file_buffer, compare_buffer);
+}
+
+int print_archive(FILE *in_file, int v_flag, char **argv) {
     /*Function will get name of tar file passed in, will be passed along to
     list_archives()*/
     //open file passed in
@@ -158,11 +176,11 @@ int print_archive(FILE *in_file, int v_flag) {
         int name_len = strlen(head.name);
         int prefix_len = strlen(head.prefix);
         //case where prefix does not exist will not be concatenated to the name
-        //generating file name without pre-fix
+        //generating file name without pre-fix 
         if (strlen(head.prefix) == 0){ 
             strncpy(file_name, head.name, name_len);      
         }
-        else{
+        else if (prefix_len != 0){
             //case where pre-fix is not empty
             strncpy(file_name, head.prefix, prefix_len);
             file_name[prefix_len] = '/';
@@ -170,24 +188,23 @@ int print_archive(FILE *in_file, int v_flag) {
             strncpy(name_offset, head.name, name_len);
         }
     }
-
-
         /* If no files are given, print the whole archive */
-        // if (argc < 4) {
-        //     list_archives(file_name, header, verbose_flag);
-        // } else {
-        //     /* If files are given, find each one in the order given */
-        //     for (i = 3; i < argc; i++) {
-        //         /* Check if current file is the same as the file passed */
-        //         if (check_file(file_name, argv[i]) == 0) {
-        //             /* If it is, print */
-        //         }
-        //     }clear
-        // }
-    //}
-    /* Close oopened files */
+        if (argc_val < 4) {
+            list_archives(file_name, 1);
+        } else {
+             /* If files are given, find each one in the order given */
+            for (i = 3; i < argc_val; i++) {
+                /* Check if current file is the same as the file passed */
+                if (check_file(file_name, argv[i]) == 0) {
+                    /* If it is, print */
+                    list_archives(file_name, v_flag);
+                }
+            }
+        }
+    
+    /* Close opened files */
     fclose(in_file);
-    //return result;
+
 }
         
 

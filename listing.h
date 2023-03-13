@@ -15,8 +15,7 @@
 #include <utime.h>
 #include "mytar.h"
 
-// int v_flag = 0;
-// int S_flag = 0;
+
 
 #define REGULAR_FILE '0'
 #define SYM_LINK '2'
@@ -24,8 +23,9 @@
 
 
 
-int print_archive(FILE *in_file, int v_flag);
-void list_archives(int v_flag);
+
+void list_archives(char *file_name, int v_flag);
+int print_archive(FILE *in_file, int v_flag, char **argv);
 
 char file_name[257];
 

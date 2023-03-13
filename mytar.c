@@ -36,21 +36,33 @@ char mem_block[512];
 
 
 int main(int argc, char **argv){
-
     //handle case for t flag for list mode
-
-    //initializing file pointer to pass into 
-    FILE *in_file;
-
-    if ((in_file = fopen(argv[2], "rb")) == NULL) {
-        fprintf(stderr, "Error: Could not open file %s\n", argv[2]);
+    argc_val = argc;
+    in_file = fopen(argv[2], "rb");
+    /* Check the correct number of arguments is passed */
+    if (argc < 2) {
+        perror("usage: mytar [ctxvS]f tarfile [ path [ ... ] ]\n");
         return 1;
     }
+    else{ 
+        print_archive(in_file, 1, argv);
+    }
 
+    // if ((in_file = fopen(argv[2], "rb")) == NULL) {
+    //     fprintf(stderr, "Error: Could not open file %s\n", argv[2]);
+    //     return 1
+    //     ;
+    // }
     //pass in 1 as 2nd arg if v flag is encountered
     //check will be implemented here
-    print_archive(in_file, 1);
+
+    //if t flag invoked 
+
+
+    
 
     fclose(in_file);
 
 }
+
+

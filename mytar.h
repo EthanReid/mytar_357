@@ -17,6 +17,9 @@
 // struct header head;
 
 extern FILE *out_file;
+FILE *in_file;
+int argc_val;
+//extern char *argv_copy;
 
 
 // typedef struct Header {
