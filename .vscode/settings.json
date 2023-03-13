@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "archive.h": "c",
+        "blockbuffer.h": "c"
+    }
+}
