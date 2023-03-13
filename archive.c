@@ -4,7 +4,7 @@
 //#include "mytar.h"
 //#include "blockBuffer.h"
 
-//struct header head;
+header head;
 // void populate_header(stat_ptr sp){
 //     /*accepts a pointer to a stat struct
 //     populates the global header struct with
@@ -29,7 +29,7 @@
 //     strcpy(header->prefix, ""); // copy empty string to prefix field
 //     memset(header->padding, '\0', 52); // fill padding field with null characters
 // }
-header head;
+
 
 void populate_header(char *name, stat_ptr sp){
     struct passwd *password;
