@@ -42,7 +42,7 @@ struct __attribute__ ((__packed__)) header{
     char padding[12];	
 };
 
-header head;
+extern header head;
 
 // struct dirent *direnty;
 // struct passwd *password;
