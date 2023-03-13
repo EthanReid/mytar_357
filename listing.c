@@ -28,7 +28,7 @@ void list_archives(char *file_name, int v_flag){
     char permissions[10];
     char owner_name[17];
     //char file_size_buffer[8];
-    char m_time_buffer[16]; 
+    char m_time_buffer[17]; 
 
     int file_size;
     file_size = strtol(head.size, NULL, 8);
@@ -116,7 +116,7 @@ void list_archives(char *file_name, int v_flag){
             permissions[9] = '-';
         }
         if (strlen(head.uname)>17){
-            strncpy(owner_name, head.uname,  );
+            strncpy(owner_name, head.uname, 17);
         }
         else{
             //compute how

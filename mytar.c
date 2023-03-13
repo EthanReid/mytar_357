@@ -38,7 +38,7 @@ int main(int argc, char **argv){
     argc_val = argc;
     in_file = fopen(argv[2], "rb");
     /* Check the correct number of arguments is passed */
-    if (argc < 2) 
+    if (argc < 2) {
         perror("usage: mytar [ctxvS]f tarfile [ path [ ... ] ]\n");
         return 1;
     }

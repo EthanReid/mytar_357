@@ -29,6 +29,7 @@
 //     strcpy(header->prefix, ""); // copy empty string to prefix field
 //     memset(header->padding, '\0', 52); // fill padding field with null characters
 // }
+header head;
 
 void populate_header(char *name, stat_ptr sp){
     struct passwd *password;
