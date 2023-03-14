@@ -20,7 +20,7 @@ about each file as it lists them.
 
 //must read the file into the global header 
 
-header head;
+//header head;
 
 void list_archives(char *file_name, int v_flag, header *head){
     /* Function will list contents of a tar file in stdout if passed 
@@ -163,7 +163,7 @@ int check_file(char *file, char *compare) {
     return strcmp(file_buffer, compare_buffer);
 }
 
-int print_archive(FILE *in_file, int v_flag, char **argv) {
+int print_archive(FILE *in_file, int v_flag, int argc, char **argv) {
     /*Function will get name of tar file passed in, will be passed along to
     list_archives()*/
     //open file passed in
@@ -203,11 +203,11 @@ int print_archive(FILE *in_file, int v_flag, char **argv) {
         }
     }
         /* If no files are given, print the whole archive */
-        if (argc_val < 4) {
+        if (argc < 4) {
             list_archives(file_name, 1, head);
         } else {
-             /* If files are given, find each one in the order given */
-            for (i = 3; i < argc_val; i++) {
+             //for file case ensuring we are indexing above other args passed in
+            for (i = 3; i < argc; i++) {
                 /* Check if current file is the same as the file passed */
                 if (check_file(file_name, argv[i]) == 0) {
                     /* If it is, print */
@@ -216,7 +216,7 @@ int print_archive(FILE *in_file, int v_flag, char **argv) {
             }
         }
     
-    strcpy(head->uname, "MyAss\0");
+    strcpy(head->uname, "test1212\0");
     /* Close opened files */
     fclose(in_file);
     return 0;
