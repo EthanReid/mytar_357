@@ -66,7 +66,7 @@ void populate_header(char *name, stat_ptr sp){
     }
 
     if (S_ISREG(sp->st_mode)){
-        head.typeflag = "0";
+        head.typeflag = '0';
         snprintf(head.size, 12, "%011llo", (unsigned long long) sp->st_size); // convert size to octal and copy to size field
     }else if (S_ISLNK(sp->st_mode)){
         head.typeflag = '2';
