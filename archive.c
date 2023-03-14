@@ -81,8 +81,9 @@ void populate_header(char *name, stat_ptr sp){
     for (i = 0; i<BLOCK_SIZE; ++i){
         chksum += ((char*)&head)[i];
     }
-    snprintf(head.chksum, 8, "%07o", 0013320);
-    printf("checksum = %s\n", head.chksum);
+    chksum += ' ' * 8;
+
+    snprintf(head.chksum, 8, "%07o", chksum);
 }
 
 
@@ -116,7 +117,6 @@ void archive_file(char *name, stat_ptr sp){
     populate_header(name, sp);
     write_header();
     if (S_ISREG(sp->st_mode)){
-        printf("IS FILE\n");
         file = fopen(name, "rb");
         if (file==NULL){
             perror("connot open file");
