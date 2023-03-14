@@ -8,36 +8,22 @@ FILE *out_file;
 
 char mem_block[512];
 
-// int main(int argc, char **argv){
+int main(int argc, char **argv){
 //     //if file already exists it needs to be wiped
 //     //open file in w mode first, write nothing, close, reopen in a mode
-    // out_file = fopen("testout.tar","w");
-    // close(out_file);
-    // out_file = fopen("testout.tar","a");
-    // manage_file(argv[1]);
-    // write_block(FORCE);
-    // write_block(FORCE);
+    out_file = fopen("testout.tar","w");
+    close(out_file);
+    out_file = fopen("testout.tar","a");
+    manage_file(argv[1]);
+    write_block(FORCE);
+    write_block(FORCE);
+}
 
-
-//     //handle case for t flag for list mode
-
-//     //initializing file pointer to pass into 
-//     FILE *in_file;
-
-//     in_file = fopen(*argv[2], "rb");
-
-//     //pass in 1 as 2nd arg if v flag is encountered
-//     //check will be implemented here
-//     print_archive(in_file, 1);
-
-
-// }
-
+/*
 int main(int argc, char **argv){
     //handle case for t flag for list mode
     argc_val = argc;
     in_file = fopen(argv[2], "rb");
-    /* Check the correct number of arguments is passed */
     if (argc < 2) {
         perror("usage: mytar [ctxvS]f tarfile [ path [ ... ] ]\n");
         return 1;
@@ -63,4 +49,4 @@ int main(int argc, char **argv){
 
 }
 
-
+*/

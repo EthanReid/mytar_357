@@ -38,8 +38,7 @@ struct __attribute__ ((__packed__)) header{
     char gname[32];
     char devmajor[8];
     char devminor[8];
-    char prefix[155];
-    char padding[12];	
+    char prefix[155];	
 };
 
 extern header head;

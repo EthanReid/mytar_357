@@ -36,10 +36,14 @@ void populate_header(char *name, stat_ptr sp){
     struct group *group;
     /*use snprintf to move stat data to head*/
     memset(&head, 0, sizeof(header)); // clear header struct
+
     snprintf(head.mode, 8, "%07o", sp->st_mode & 0777); //why 0077?
+    head.mode[0] = '0';//?
+    head.mode[1] = '0';//?
+    head.mode[2] = '0';//?
+
     snprintf(head.uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
     snprintf(head.gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
-    snprintf(head.size, 12, "%011llo", (unsigned long long) sp->st_size); // convert size to octal and copy to size field
     snprintf(head.mtime, 12, "%011lo", (unsigned long) sp->st_mtime); // doesnt exist?
     head.typeflag = '0'; // set typeflag to regular file
     strcpy(head.linkname, ""); // copy empty string to linkname field
@@ -61,6 +65,25 @@ void populate_header(char *name, stat_ptr sp){
     }else{
         strncpy(head.name, name, strlen(name)%101);
     }
+
+    if (S_ISREG(sp->st_mode)){
+        head.typeflag = "0";
+        snprintf(head.size, 12, "%011llo", (unsigned long long) sp->st_size); // convert size to octal and copy to size field
+    }else if (S_ISLNK(sp->st_mode)){
+        head.typeflag = '2';
+        strcpy(head.size, "00000000000");
+    }else{
+        head.typeflag = '5';
+        strcpy(head.size, "00000000000");
+    }
+
+    int chksum = 0;
+    int i;
+    for (i = 0; i<BLOCK_SIZE; ++i){
+        chksum += ((char*)&head)[i];
+    }
+    snprintf(head.chksum, 8, "%07o", chksum);
+    printf("checksum = %s\n", head.chksum);
 }
 
 
