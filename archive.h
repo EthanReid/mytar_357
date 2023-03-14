@@ -22,7 +22,7 @@ typedef header* header_ptr;
 
 typedef struct stat* stat_ptr;
 
-struct __attribute__ ((__packed__)) header{
+struct header{
     char name[100];
     char mode[8];
     char uid[8];
