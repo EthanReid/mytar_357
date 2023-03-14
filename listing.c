@@ -31,7 +31,7 @@ void list_archives(char *file_name, int v_flag, header *head){
     char permissions[10];
     char owner_name[17];
     //char file_size_buffer[8];
-    char m_time_buffer[17]; 
+    char m_time_buffer[16]; 
 
     int file_size;
     file_size = strtol(head->size, NULL, 8);
