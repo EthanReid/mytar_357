@@ -127,7 +127,7 @@ void archive_file(char *name, stat_ptr sp){
             write_block(FORCE);
         }
         write_block(FORCE);
-         fclose(file);
+        fclose(file);
     }
 }
 
@@ -168,24 +168,7 @@ void array_to_buffer(char* arr){
 
 /*snprintf*/
 //decToOctal function not needed
-void decToOctal(int n){
-    // array to store octal number
-    int octalNum[100];
-  
-    // counter for octal number array
-    int i = 0;
-    while (n != 0) {
-  
-        // storing remainder in octal array
-        octalNum[i] = n % 8;
-        n = n / 8;
-        i++;
-    }
-  
-    // printing octal number array in reverse order
-    for (int j = i - 1; j >= 0; j--)
-        printf("%d", octalNum[j]);
-}
+
 
 //why not use strcar instead of this method?
 char *concat_str(char *str1, char *str2){
