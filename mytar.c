@@ -25,8 +25,10 @@ int main(int argc, char **argv){
     write_block(FORCE);
     write_block(FORCE);
 */
+/*
     FILE *infile = fopen(argv[1], "rb");
     read_head(infile);
+*/
 
 }
 
