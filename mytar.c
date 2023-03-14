@@ -19,9 +19,9 @@ int main(int argc, char **argv){
 //     //open file in w mode first, write nothing, close, reopen in a mode
 
     if (strcmp(argv[1], "-c")==0){
-        out_file = fopen("testout.tar","w");
+        out_file = fopen("testout.tar","wb");
         close(out_file);
-        out_file = fopen("testout.tar","a");
+        out_file = fopen("testout.tar","ab");
         manage_file(argv[2]);
         write_block(FORCE);
         write_block(FORCE);
