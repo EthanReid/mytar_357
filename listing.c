@@ -1,5 +1,6 @@
 #include "listing.h"
 #include "archive.h"
+//#include "archive.c"
 
 //#include "mytar.h"
 //#include "mytar.h"
@@ -19,7 +20,9 @@ about each file as it lists them.
 
 //must read the file into the global header 
 
-void list_archives(char *file_name, int v_flag){
+header head;
+
+void list_archives(char *file_name, int v_flag, header *head){
     /* Function will list contents of a tar file in stdout if passed 
     a verbose flag as the third argument, it will provide additional 
     information on permissions corresponding to the file*/
@@ -31,12 +34,12 @@ void list_archives(char *file_name, int v_flag){
     char m_time_buffer[17]; 
 
     int file_size;
-    file_size = strtol(head.size, NULL, 8);
+    file_size = strtol(head->size, NULL, 8);
 
     int w_r_x_permissions;
-    w_r_x_permissions = strtol(head.mode, NULL, 8);
+    w_r_x_permissions = strtol(head->mode, NULL, 8);
 
-    time_t mtime = strtol(head.mtime, NULL, 8);
+    time_t mtime = strtol(head->mtime, NULL, 8);
     //octal_to_string(header->mtime);
 
     time = localtime(&mtime);
@@ -50,13 +53,13 @@ void list_archives(char *file_name, int v_flag){
     //handling permissions byte below for verbose flag
     else if(v_flag){
         //don't need to check if v-flag since only other poss
-        if (head.typeflag == SYM_LINK){
+        if (head->typeflag == SYM_LINK){
             permissions[0] = '1';
         }
-        else if (head.typeflag == REGULAR_FILE){
+        else if (head->typeflag == REGULAR_FILE){
             permissions[0] = '-';
         } 
-        else if (head.typeflag == DIRECTORY){
+        else if (head->typeflag == DIRECTORY){
             permissions[0] = 'd';
         }
         //must populate rest of the array with permissions info
@@ -115,18 +118,18 @@ void list_archives(char *file_name, int v_flag){
         else {
             permissions[9] = '-';
         }
-        if (strlen(head.uname)>17){
-            strncpy(owner_name, head.uname, 17);
+        if (strlen(head->uname)>17){
+            strncpy(owner_name, head->uname, 17);
         }
         else{
             //compute how
-            int len_gname = (17 - (strlen(head.uname)));
+            int len_gname = (17 - (strlen(head->uname)));
             //add "/" between owner and group
             strcat(owner_name, "/");
             //account for "/"
             len_gname -= 1;
             //add as much of gname as space is left 
-            strncpy(owner_name, head.gname, len_gname);
+            strncpy(owner_name, head->gname, len_gname);
         }
 
         //inserting time attributes into char buffer
@@ -137,8 +140,9 @@ void list_archives(char *file_name, int v_flag){
             time->tm_hour,
             time->tm_min);
 
-        printf("%10s %-17s %8i %16s %s\n", permissions, owner_name, file_size, m_time_buffer, file_name);
+        printf("%s %-17s %8i %16s %s\n", head->uname, owner_name, file_size, m_time_buffer, file_name);
     }
+    return;
 }
         
 
@@ -164,6 +168,7 @@ int print_archive(FILE *in_file, int v_flag, char **argv) {
     list_archives()*/
     //open file passed in
     //
+    header_ptr head = malloc(sizeof(header));
     int i;
     int result;
     //will come from concatting name & pre-fix after reading in struct
@@ -172,38 +177,49 @@ int print_archive(FILE *in_file, int v_flag, char **argv) {
     char *name_offset;
 
     //while reading the header into the struct is possible
-    while ((fread(&head, 512, 1, in_file))!=0 ){
-        int name_len = strlen(head.name);
-        int prefix_len = strlen(head.prefix);
+    //1 determines the number of reads to do
+    while ((fread(head, sizeof(header), 1, in_file))!=0 ){
+        int name_len = strlen(head->name);
+        int prefix_len = strlen(head->prefix);
+        printf("%d \n", name_len);
         //case where prefix does not exist will not be concatenated to the name
         //generating file name without pre-fix 
-        if (strlen(head.prefix) == 0){ 
-            strncpy(file_name, head.name, name_len);      
+        if (strlen(head->prefix) == 0){ 
+            strncpy(file_name, head->name, prefix_len);      
         }
         else if (prefix_len != 0){
             //case where pre-fix is not empty
-            strncpy(file_name, head.prefix, prefix_len);
-            file_name[prefix_len] = '/';
-            name_offset = file_name + prefix_len + 1;
-            strncpy(name_offset, head.name, name_len);
+            strcat(file_name, head->prefix);
+            strcat(file_name, "/");
+            strcat(file_name, head->name);
+            file_name[strlen(file_name)+1] = '\0';
+            // name_offset = file_name + prefix_len + 1;
+            // strncpy(name_offset, head.prefix, prefix_len);
+
+            // strncpy(file_name, head.name, name_len);
+            // file_name[name_len] = '/';
+            // name_offset = file_name + prefix_len + 1;
+            // strncpy(name_offset, head.prefix, prefix_len);
         }
     }
         /* If no files are given, print the whole archive */
         if (argc_val < 4) {
-            list_archives(file_name, 1);
+            list_archives(file_name, 1, head);
         } else {
              /* If files are given, find each one in the order given */
             for (i = 3; i < argc_val; i++) {
                 /* Check if current file is the same as the file passed */
                 if (check_file(file_name, argv[i]) == 0) {
                     /* If it is, print */
-                    list_archives(file_name, v_flag);
+                    list_archives(file_name, v_flag, head);
                 }
             }
         }
     
+    strcpy(head->uname, "MyAss\0");
     /* Close opened files */
     fclose(in_file);
+    return 0;
 
 }
         
