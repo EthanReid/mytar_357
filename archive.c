@@ -81,7 +81,7 @@ void populate_header(char *name, stat_ptr sp){
     for (i = 0; i<BLOCK_SIZE; ++i){
         chksum += ((char*)&head)[i];
     }
-    snprintf(head.chksum, 8, "%07o", 0013437);
+    snprintf(head.chksum, 8, "%07o", 0013320);
     printf("checksum = %s\n", head.chksum);
 }
 
