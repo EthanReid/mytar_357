@@ -8,15 +8,26 @@ FILE *out_file;
 
 char mem_block[512];
 
+/*temp func*/
+void read_head(FILE *infile){
+    fread(&head, sizeof(head),1, infile);
+    printf("read");
+}
+
 int main(int argc, char **argv){
 //     //if file already exists it needs to be wiped
 //     //open file in w mode first, write nothing, close, reopen in a mode
+/* 
     out_file = fopen("testout.tar","w");
     close(out_file);
     out_file = fopen("testout.tar","a");
     manage_file(argv[1]);
     write_block(FORCE);
     write_block(FORCE);
+*/
+    FILE *infile = fopen("testout.tar", "rb");
+    read_head(infile);
+
 }
 
 /*

@@ -39,8 +39,10 @@ void populate_header(char *name, stat_ptr sp){
 
     snprintf(head.mode, 8, "%07o", sp->st_mode & 0777); //why 0077?
 
-    snprintf(head.uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
-    snprintf(head.gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
+    //snprintf(head.uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
+    //snprintf(head.gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
+    strcpy(head.uid, "7777777");
+    strcpy(head.gid, "7777777");
     snprintf(head.mtime, 12, "%011lo", (unsigned long) sp->st_mtime); // doesnt exist?
     head.typeflag = '0'; // set typeflag to regular file
     strcpy(head.linkname, ""); // copy empty string to linkname field
