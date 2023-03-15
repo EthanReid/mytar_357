@@ -13,6 +13,11 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <grp.h>
+#define BLOCK_SIZE 512
+#define PUSH -2
+#define FORCE -1
+
+extern FILE *out_file;
 
 char mem_block[512];
 
@@ -50,5 +55,10 @@ void expand_directory(char *name);
 void write_to_buffer(int ch);
 void decToOctal(int n);
 char *concat_str(char *str1, char *str2);
+char *add_slash(char *str);
+
+extern char block[];
+extern FILE *out_file;
+void write_block(int value);
 
 #endif

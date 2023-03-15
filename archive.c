@@ -1,9 +1,13 @@
 #include "archive.h"
-#include "blockBuffer.h"
 
 header head;
+char block[BLOCK_SIZE];
 
 void populate_header(char *name, stat_ptr sp){
+    char *new_name = name;
+    if (S_ISDIR(sp->st_mode)){
+        new_name = add_slash(name);
+    }
     struct passwd *password;
     struct group *group;
     /*use snprintf to move stat data to head*/
@@ -33,12 +37,15 @@ void populate_header(char *name, stat_ptr sp){
     strcpy(head.devminor, ""); // copy empty string to devminor field
     
     //copy first 100 chars of name
-    if (strlen(name)>100){
-        strncpy(head.name, name, 100);
+    if (strlen(new_name)>100){
+        strncpy(head.prefix, new_name, 101);
          //copy from element 100 until end
-        strncpy(head.prefix, (name+100),strlen(name)-100);
+        strncpy(head.name, (new_name+101),strlen(new_name)-100);
+        //printf("name: %s\n", head.name);
+        //printf("prefix: %s\n", head.prefix);
+
     }else{
-        strncpy(head.name, name, strlen(name)%101);
+        strncpy(head.name, new_name, strlen(new_name)%101);
     }
 
     if (S_ISREG(sp->st_mode)){
@@ -81,7 +88,9 @@ void manage_file(char *name){
     if file, archive file*/
     struct stat st;
     stat_ptr sp = &st;
-    lstat(name, sp);
+    if(lstat(name, sp) != 0){
+        return;
+    }
     archive_file(name, sp);
     if (S_ISDIR(sp->st_mode)) expand_directory(name);
 } 
@@ -125,7 +134,8 @@ void expand_directory(char *name){
         /*get ino from name from dirent*/
         stat(dirp->d_name,&dir);
         /*if ino matches passed ino (target)*/
-        if ((dirp->d_name[0]!='.')&&(dir.st_ino != cur_dir.st_ino)){
+        if ((strcmp(dirp->d_name,"..")!=0)&&(strcmp(dirp->d_name,".")!=0)
+        &&(dir.st_ino != cur_dir.st_ino)){
             path_name = concat_str(name, dirp->d_name);
             manage_file(path_name);
             free(path_name);
@@ -148,4 +158,33 @@ char *concat_str(char *str1, char *str2){
     c_str = calloc(1, size);
     snprintf(c_str, size,"%s/%s",str1, str2);
     return c_str;
+}
+
+char *add_slash(char *str){
+    char *c_str;
+    int size;
+    int i;
+    size = strlen(str)+2;
+    c_str = malloc(size);
+    for (i=0; i<size-2; ++i){
+        c_str[i] = str[i];
+    }
+    c_str[size-2] = '/';
+    c_str[size-1] = '\0';
+    return c_str;
+}
+
+void write_block(int value){
+    /*takes int, it force, it writes the block out as it and resets it to 0
+    push, checks index in block, if nothing has been added to just returns,
+    push cannot write an empty block, only force can*/
+    if (value == FORCE){
+        fwrite(block, 1, BLOCK_SIZE, out_file);
+        memset(block, 0, BLOCK_SIZE);
+    }else if (value == PUSH){
+        ;
+    }
+    else{
+        ;
+    }
 }

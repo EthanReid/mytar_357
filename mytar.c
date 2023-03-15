@@ -1,65 +1,74 @@
 #include "mytar.h"
-//#include "listing.h"
-//#include "archive.h"
 
-//#include "listing.h"
+int v_flag = 0;
+int f_flag = 0;
+FILE *out_file = NULL;
 
-FILE *out_file;
-
-char mem_block[512];
-
-/*temp func*/
-void read_head(FILE *infile){
-    fread(&head, sizeof(head),1, infile);
-    printf("read");
-}
-
-int main(int argc, char **argv){
-//     //if file already exists it needs to be wiped
-//     //open file in w mode first, write nothing, close, reopen in a mode
-
-    if (strcmp(argv[1], "c")==0){
-        out_file = fopen("testout.tar","wb");
-        close(out_file);
-        out_file = fopen("testout.tar","ab");
-        manage_file(argv[2]);
-        write_block(FORCE);
-        write_block(FORCE);
-    }else{
-        FILE *infile = fopen(argv[2], "rb");
-        read_head(infile);
-    }
-
-}
-
-/*
-int main(int argc, char **argv){
-    //handle case for t flag for list mode
-    argc_val = argc;
-    in_file = fopen(argv[2], "rb");
+int main(int argc, char *argv[]) {
+    // Declare and initialize variables
+    int fd = -1;
+    int flag = 0;
+    int ct = 0;
+    int c_flag = 0;
+	int i;
+    // Check if user passed in enough arguments
     if (argc < 2) {
-        perror("usage: mytar [ctxvS]f tarfile [ path [ ... ] ]\n");
+        print_usage_message(argv[0]);
         return 1;
     }
-    else{ 
-        print_archive(in_file, 1, argv);
+
+    // Parse command-line arguments
+    for (i = 0; i < strlen(argv[1]); i++) {
+        char current_flag = argv[1][i];
+        switch (current_flag) {
+            case FLAG_T:
+                ct++;
+                if (!flag) {
+                    flag = FLAG_T;
+                }
+                break;
+            case FLAG_V:
+                v_flag = 1;
+                break;
+            case FLAG_F:
+                f_flag = 1;
+                break;
+            case FLAG_C:
+                c_flag = 1;
+                break;
+            default:
+                handle_invalid_flag_selection(argv[0], current_flag);
+        }
+    }   
+
+    // Check if f flag was passed in
+    if (!f_flag) {
+        fprintf(stderr, "%s: give f option if passing in file\n", argv[0]);
+        return 1;
+    }else if (c_flag){
+        out_file = fopen(argv[2],"wb");
+        close(out_file);
+        out_file = fopen(argv[2],"ab");
+        int i;
+        for (i = 3; i<argc; i++){
+            manage_file(argv[i]);
+        }
+        write_block(FORCE);
+        write_block(FORCE);
+    }
+    else {
+        // Open the specified file
+        fd = open(argv[2], O_RDONLY);
+        if (fd == -1) {
+            perror("open");
+            return 1;
+        }
+
+        // Call function to process the archive
+        print_archive(fd, argv, argc, flag);
+        close(fd);
     }
 
-    // if ((in_file = fopen(argv[2], "rb")) == NULL) {
-    //     fprintf(stderr, "Error: Could not open file %s\n", argv[2]);
-    //     return 1
-    //     ;
-    // }
-    //pass in 1 as 2nd arg if v flag is encountered
-    //check will be implemented here
-
-    //if t flag invoked 
-
-
-    
-
-    fclose(in_file);
-
+    return 0;
 }
 
-*/
