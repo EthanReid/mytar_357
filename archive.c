@@ -39,10 +39,10 @@ void populate_header(char *name, stat_ptr sp){
 
     snprintf(head.mode, 8, "%07o", sp->st_mode & 0777); //why 0077?
 
-    //snprintf(head.uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
-    //snprintf(head.gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
-    strcpy(head.uid, "7777777");
-    strcpy(head.gid, "7777777");
+    snprintf(head.uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
+    snprintf(head.gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
+    //strcpy(head.uid, "7777777");
+    //strcpy(head.gid, "7777777");
     snprintf(head.mtime, 12, "%011lo", (unsigned long) sp->st_mtime); // doesnt exist?
     head.typeflag = '0'; // set typeflag to regular file
     strcpy(head.linkname, ""); // copy empty string to linkname field
@@ -157,16 +157,6 @@ void expand_directory(char *name){
     //free(dir_name);
 }
 
-void array_to_buffer(char* arr){
-    /*accepts a char*
-    takes each element of char* and puts it in the global buffer,
-    dont need if doing memcpy*/
-    ;
-}
-
-
-/*snprintf*/
-//decToOctal function not needed
 
 
 //why not use strcar instead of this method?
