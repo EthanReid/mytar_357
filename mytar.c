@@ -18,7 +18,7 @@ int main(int argc, char **argv){
 //     //if file already exists it needs to be wiped
 //     //open file in w mode first, write nothing, close, reopen in a mode
 
-    if (strcmp(argv[1], "-c")==0){
+    if (strcmp(argv[1], "c")==0){
         out_file = fopen("testout.tar","wb");
         close(out_file);
         out_file = fopen("testout.tar","ab");
