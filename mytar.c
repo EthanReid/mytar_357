@@ -43,7 +43,7 @@ int main(int argc, char **argv){
         return 1;
     }
     else{ 
-        print_archive(in_file, 1, argv);
+        print_archive(in_file, 1, argc, argv);
     }
 
     // if ((in_file = fopen(argv[2], "rb")) == NULL) {

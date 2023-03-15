@@ -24,9 +24,9 @@
 
 
 
-void list_archives(char *file_name, int v_flag);
-int print_archive(FILE *in_file, int v_flag, char **argv);
+void list_archives(char *file_name, int v_flag, header *head);
+int print_archive(FILE *in_file, int v_flag, int argc, char **argv);
 
-char file_name[257];
+// char file_name[257];
 
 #endif
