@@ -146,6 +146,7 @@ void array_to_buffer(char* arr){
 /*snprintf*/
 //decToOctal function not needed
 void decToOctal(int n){
+    int j;
     // array to store octal number
     int octalNum[100];
   
@@ -160,7 +161,7 @@ void decToOctal(int n){
     }
   
     // printing octal number array in reverse order
-    for (int j = i - 1; j >= 0; j--)
+    for (j = i - 1; j >= 0; j--)
         printf("%d", octalNum[j]);
 }
 
