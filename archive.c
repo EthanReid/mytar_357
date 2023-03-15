@@ -10,36 +10,41 @@ void populate_header(char *name, stat_ptr sp){
     memset(&head, 0, sizeof(header)); // clear header struct
 
     snprintf(head.mode, 8, "%07o", sp->st_mode & 0777); //why 0077?
-
-    snprintf(head.uid, 8, "%07o", sp->st_uid); // convert uid to octal and copy to uid field
-    snprintf(head.gid, 8, "%07o", sp->st_gid); // convert gid to octal and copy to gid field
+    // convert uid to octal and copy to uid field
+    snprintf(head.uid, 8, "%07o", sp->st_uid); 
+     // convert gid to octal and copy to gid field
+    snprintf(head.gid, 8, "%07o", sp->st_gid);
     //strcpy(head.uid, "7777777");
     //strcpy(head.gid, "7777777");
-    snprintf(head.mtime, 12, "%011lo", (unsigned long) sp->st_mtime); // doesnt exist?
+     // doesnt exist?
+    snprintf(head.mtime, 12, "%011lo", (unsigned long) sp->st_mtime);
     head.typeflag = '0'; // set typeflag to regular file
     strcpy(head.linkname, ""); // copy empty string to linkname field
     strcpy(head.magic, "ustar"); // copy "ustar" to magic field
-    //strcpy(head.version, "00"); // copy "00" to version field - BUG HERE, TRACE TRAP
     head.version[0] = '0';
     head.version[1] = '0';
     password = getpwuid(sp->st_uid); 
-    strcpy(head.uname, password->pw_name); // copy empty string to uname field
+    // copy empty string to uname field
+    strcpy(head.uname, password->pw_name); 
     group = getgrgid(sp->st_gid);
-    strcpy(head.gname, group->gr_name); // copy empty string to gname field
+    // copy empty string to gname field
+    strcpy(head.gname, group->gr_name); 
     strcpy(head.devmajor, ""); // copy empty string to devmajor field
     strcpy(head.devminor, ""); // copy empty string to devminor field
     
     //copy first 100 chars of name
     if (strlen(name)>100){
         strncpy(head.name, name, 100);
-        strncpy(head.prefix, (name+100),strlen(name)-100); //copy from element 100 until end
+         //copy from element 100 until end
+        strncpy(head.prefix, (name+100),strlen(name)-100);
     }else{
         strncpy(head.name, name, strlen(name)%101);
     }
 
     if (S_ISREG(sp->st_mode)){
         head.typeflag = '0';
-        snprintf(head.size, 12, "%011llo", (unsigned long long) sp->st_size); // convert size to octal and copy to size field
+         // convert size to octal and copy to size field
+        snprintf(head.size, 12, "%011llo", (unsigned long long) sp->st_size);
     }else if (S_ISLNK(sp->st_mode)){
         head.typeflag = '2';
         strcpy(head.size, "00000000000");
@@ -62,7 +67,8 @@ void populate_header(char *name, stat_ptr sp){
 //previously populate_header_buffer
 void write_header(){
     /*memcpy head into block, if head has packed attribute,
-    could also call write_byte in a loop, where each byte of head is moved to bock.
+    could also call write_byte in a loop, 
+    where each byte of head is moved to bock.
     write_block after filling if using memcpy*/
     memcpy(&block, &head, sizeof(head));
     write_block(FORCE);
