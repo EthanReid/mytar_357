@@ -22,6 +22,9 @@ about each file as it lists them.
 
 //header head;
 
+
+char file_name[257];
+
 void list_archives(char *file_name, int v_flag, header *head){
     /* Function will list contents of a tar file in stdout if passed 
     a verbose flag as the third argument, it will provide additional 
@@ -31,7 +34,7 @@ void list_archives(char *file_name, int v_flag, header *head){
     char permissions[10];
     char owner_name[17];
     //char file_size_buffer[8];
-    char m_time_buffer[16]; 
+    char m_time_buffer[17]; 
 
     int file_size;
     file_size = strtol(head->size, NULL, 8);
@@ -43,15 +46,22 @@ void list_archives(char *file_name, int v_flag, header *head){
     //octal_to_string(header->mtime);
 
     time = localtime(&mtime);
-
-    //m_time = octal_to_string(header->mtime);
+    // int m_time; 
+    // m_time_buffer = strtol(he)
+    //octal_to_string(header->mtime);
     //file_name is variable 
 
     if (!(v_flag)){
-        printf("%s\n", file_name);
+        //printf("%s\n", file_name);
+        
     } 
     //handling permissions byte below for verbose flag
     else if(v_flag){
+        printf("\nHere is the owner name");
+        printf("\n");
+        printf("\n");
+        printf("blah");
+        puts(file_name);
         //don't need to check if v-flag since only other poss
         if (head->typeflag == SYM_LINK){
             permissions[0] = '1';
@@ -118,14 +128,18 @@ void list_archives(char *file_name, int v_flag, header *head){
         else {
             permissions[9] = '-';
         }
+        //printf("\nowner name before population%s", owner_name);
         if (strlen(head->uname)>17){
             strncpy(owner_name, head->uname, 17);
+            //printf("\nHere is the owner name%s", owner_name);
         }
         else{
             //compute how
             int len_gname = (17 - (strlen(head->uname)));
+            //printf("\nHere is the owner name%s", owner_name);
             //add "/" between owner and group
             strcat(owner_name, "/");
+            //printf("\nHere is the owner name after strcatting%s", owner_name);
             //account for "/"
             len_gname -= 1;
             //add as much of gname as space is left 
@@ -140,7 +154,7 @@ void list_archives(char *file_name, int v_flag, header *head){
             time->tm_hour,
             time->tm_min);
 
-        printf("%s %-17s %8i %16s %s\n", head->uname, owner_name, file_size, m_time_buffer, file_name);
+        printf("%s %-16s %8i %16s %s\n", head->uname, owner_name, file_size, m_time_buffer, file_name);
     }
     return;
 }
@@ -178,10 +192,17 @@ int print_archive(FILE *in_file, int v_flag, int argc, char **argv) {
 
     //while reading the header into the struct is possible
     //1 determines the number of reads to do
-    while ((fread(head, sizeof(header), 1, in_file))!=0 ){
+    while ((fread(head, sizeof(head), 1, in_file))!=0 ){
+        printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%c\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+    head->name, head->mode, head->uid, head->gid, head->size, head->mtime,
+    head->chksum, head->typeflag, head->linkname, head->magic, head->version,
+    head->uname, head->gname, head->devmajor, head->devminor, head->prefix,
+    head->padding);
+
+        //printf("%s test head name\n", head->name);
         int name_len = strlen(head->name);
         int prefix_len = strlen(head->prefix);
-        printf("%d \n", name_len);
+        //printf("%d \n", name_len);
         //case where prefix does not exist will not be concatenated to the name
         //generating file name without pre-fix 
         if (strlen(head->prefix) == 0){ 
@@ -216,7 +237,7 @@ int print_archive(FILE *in_file, int v_flag, int argc, char **argv) {
             }
         }
     
-    strcpy(head->uname, "test1212\0");
+    strcpy(head->uname, "\0");
     /* Close opened files */
     fclose(in_file);
     return 0;
