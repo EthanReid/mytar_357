@@ -5,7 +5,7 @@ char block[BLOCK_SIZE];
 
 void populate_header(char *name, stat_ptr sp){
     char *new_name = name;
-    if (S_ISDIR(sp->st_mode)){
+    if (S_ISDIR(sp->st_mode)&&(strlen(name)<101)){
         new_name = add_slash(name);
     }
     struct passwd *password;
@@ -38,11 +38,17 @@ void populate_header(char *name, stat_ptr sp){
     
     //copy first 100 chars of name
     if (strlen(new_name)>100){
-        strncpy(head.prefix, new_name, 101);
-         //copy from element 100 until end
-        strncpy(head.name, (new_name+101),strlen(new_name)-100);
-        //printf("name: %s\n", head.name);
-        //printf("prefix: %s\n", head.prefix);
+        int i_last_slash = strlen(new_name);
+        if (!S_ISDIR(sp->st_mode)){
+            for (; i_last_slash>=0; --i_last_slash){
+                if (new_name[i_last_slash] == '/') break;
+            }
+            strncpy(head.name, new_name+i_last_slash+1,
+            strlen(new_name)-(i_last_slash+1));
+        }
+        strncpy(head.prefix, new_name, i_last_slash);
+        printf("name: %s\n", head.name);
+        printf("prefix: %s\n", head.prefix);
 
     }else{
         strncpy(head.name, new_name, strlen(new_name)%101);
