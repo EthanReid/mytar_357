@@ -16,18 +16,11 @@
 #include <utime.h>
 
 
-#define CHKSUM 8
-#define CHKSUM_OFF 148
+#define STRUCT_CHKSUM 8
+#define STRUCT_MAGIC 6
+#define STRUCT_VERSION 2
+#define CHKSUM_THRESHOLD 148
 
-
-#define SIZE 12
-#define MTIME 12
-#define TYPEFLAG 1
-#define MAGIC 6
-#define VERSION 2
-#define UNAME 32
-#define GNAME 32
-#define PREFIX 155
 #define FLAG_T 't'
 #define FLAG_V 'v'
 #define FLAG_F 'f'
@@ -49,15 +42,17 @@ struct header {
 	char devmajor[8];
 	char devminor[8];
 	char prefix[155];
-	//char padding[12];	
+	char padding[12];	
 };
 
 void print_usage_message(char *program_name);
 void handle_invalid_flag_selection(char *program_name, char invalid_flag);
-int main(int argc, char *argv[]);
-void print_archive(int fd, char *argv[], int argc, char flag);
+void print_archive_v_flag(struct header *head, char permissions_string[10]);
+void print_archive(int fd, char *argv[], int argc, char curr_flag);
 int t_arg(char *file, char type, char *argv[], int argc);
-char *path_maker(char *prefix, char *name);
+int is_header_valid(struct header *head);
+char *path_concatenate(char *prefix, char *name);
+
 
 
 #endif

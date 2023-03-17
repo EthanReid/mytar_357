@@ -16,8 +16,9 @@ void print_usage_message(char *program_name) {
 
 // Define function to handle invalid flag selection
 void handle_invalid_flag_selection(char *program_name, char invalid_flag) {
-    fprintf(stderr, "%s: invalid selection '%c'.\n", 
-	program_name, invalid_flag);
+    // fprintf(stderr, "%s: invalid selection '%c'.\n", 
+	// program_name, invalid_flag);
+	perror("Invalid flag inputted");
 }
 
 int main(int argc, char *argv[]) {
@@ -55,15 +56,15 @@ int main(int argc, char *argv[]) {
 
     // Check if f flag was passed in
     if (!f_flag) {
-        fprintf(stderr, "%s: give f option if passing in file\n", argv[0]);
-        return 1;
+		perror("Give f option when passing in file");
+		exit(1);
     }
     else {
         // Open the specified file
         fd = open(argv[2], O_RDONLY);
         if (fd == -1) {
             perror("open");
-            return 1;
+            exit(1);
         }
 
         // Call function to process the archive
@@ -75,288 +76,197 @@ int main(int argc, char *argv[]) {
 }
 
 
+void print_archive_v_flag(struct header *head, char permissions_string[10]) {
+    //char rwx_chars[] = {'r', 'w', 'x'};
+    // Convert file mode string to integer
+    int st_mode = strtol(head->mode, NULL, 8);
 
-void print_archive(int fd, char *argv[], int argc, char flag) {
-	int file_size, i, st_mode, chksum;
-	char *owner_name;
-	int block_counter;
-	char *path;
-	struct header *head = (struct header*)malloc(sizeof(struct header));
-	time_t t;
-	struct tm *time;
-	char perms[10] = "drwxrwxrwx";
-	while (0 < read(fd, head, 512)) {
-		if (!head->name[0]) {
-			break;
-		}
-		path = path_maker(head->prefix, head->name);
-		file_size = strtol(head->size, NULL, 8);
-		if (argc < 4 || (t_arg(path, *head->typeflag, argv, argc) &&
-			flag == 't')) {
-			chksum = 0;
-			for (i = 0; i < 512; i++) {
-				if (i < CHKSUM_OFF ||
-					i >= CHKSUM_OFF + CHKSUM) {
-					chksum += (unsigned char)
-						((unsigned char*)(head))[i];
-				}
-				else {
-					chksum += ' ';
-				}
+    // Modify permissions_string to represent the file's permissions
+    int i;
+
+    for (i = 0; i < 10; i++) {
+        if (!((st_mode << i) & 01000)) {
+            permissions_string[i] = '-';
+        }
+    }
+
+    // Determine file type and modify permissions_string accordingly
+    switch (*(head->typeflag)) {
+        case '5': // Directory
+            permissions_string[0] = 'd';
+            break;
+        case '2': // Symbolic link
+            permissions_string[0] = 'l';
+            break;
+        default: // Regular file or other type
+            permissions_string[0] = '-';
+            break;
+    }
+
+    // Convert modification time string to time_t and then to struct tm
+    time_t t = strtol(head->mtime, NULL, 8);
+    struct tm *time = localtime(&t);
+
+    // Allocate memory for owner_name
+    char *owner_name = malloc(strlen(head->uname) + strlen(head->gname) + 2);
+
+    // Concatenate owner's username and groupname to owner_name
+    sprintf(owner_name, "%s/%s", head->uname, head->gname);
+
+    // Print formatted file metadata
+    printf("%s %-17s %8ld %04d-%02d-%02d %02d:%02d ",
+           permissions_string, owner_name, strtol(head->size, NULL, 8),
+           time->tm_year + 1900, time->tm_mon + 1, time->tm_mday,
+           time->tm_hour, time->tm_min);
+
+    // Reset permissions_string to default value
+    strcpy(permissions_string, "drwxrwxrwx");
+
+    // Free memory allocated for owner_name
+    free(owner_name);
+}
+
+void print_archive(int fd, char *argv[], int argc, char curr_flag) {
+    // Initialize a variable to keep track of the number of blocks
+    int block_counter; 
+    int file_size; // Initialize a variable to keep track of the file size
+    char *path; // Initialize a pointer to a char to hold the path of a file
+    struct header *head = malloc(512); // Allocate memory for a header struct
+    // Initialize a string to hold the permissions for the file
+    char permissions_string[10] = "drwxrwxrwx"; 
+    // Loop through the file until the end of file is reached
+    while (0 < read(fd, head, 512)) { 
+        // If the name of the header is not present, break out of the loop
+        if (!head->name[0]) { 
+            break;
+        }
+        // Concatenate the prefix and name of the file to get the full path
+        path = path_concatenate(head->prefix, head->name); 
+        // Convert the file size from string to integer
+        file_size = strtol(head->size, NULL, 8); 
+        /*If the header is not valid, display 
+        an error message and exit the program*/
+        if (!is_header_valid(head)) { 
+			perror("Bad header passed in");
+            free(path);
+            free(head);
+            exit(7);
+        }		
+        /* Check if the file should be printed 
+        based on the arguments passed*/
+        if (argc < 4 || (t_arg(path, *head->typeflag, argv, argc) 
+        && curr_flag == 't')) { 
+            // If the flag is 't', print the file details
+            if (curr_flag == 't') { 
+                if (v_flag) { /* If the verbose flag is set, print 
+                the permissions and other details about the file*/
+                    print_archive_v_flag(head, permissions_string);
+                }
+				// else{ // If the verbose flag is not 
+                //set, print only the path of the file
+				// 	printf("%s\n", path);
+				// }
+            }
+            if (head->prefix[0]) { // If the prefix of the file is present, 
+            //concatenate a slash to the end of the prefix
+				strcat(head->prefix, "/");
 			}
-			//bad header check
-		if (chksum != strtol(head->chksum, NULL, 8)
-			|| strncmp(head->magic, "ustar", MAGIC - 1) ||
-			(0 && (strncmp(head->version, "00",
-			VERSION) || strncmp(head->magic, "ustar\0",
-			MAGIC) || (head->uid[0] < '0' ||
-			head->uid[0] > '7')))) {
-			fprintf(stderr, "Malformed header found.  "
-				"Bailing.\n");
-			free(path);
-			free(head);
-			exit(7);
-		}
-			//generalcase for flag t being set 
-		if (flag == 't') {
-			//handling sub_case of the v_flag
-			if (v_flag) {
-				st_mode = strtol(head->mode, NULL, 8);
-				for (i = 0; i < 10; i++) {
-					if (!((st_mode << i) & 01000)) {
-						perms[i] = '-';
-					}
-					}
-					if (*(head->typeflag) == '5') {
-						perms[0] = 'd';
-					}
-					else if (*(head->typeflag) == '2') {
-						perms[0] = 'l';
-					}
-					else {
-						perms[0] = '-';
-					}
-					t = strtol(head->mtime, NULL, 8);
-					time = localtime(&t);
-					owner_name = (char*)malloc(sizeof(char)*
-						(strlen(head->uname) +
-						strlen(head->gname) + 2));
-					strcpy(owner_name, head->uname);
-					strcat(owner_name, "/");
-					strcat(owner_name, head->gname);
-					printf("%s %-17s %8ld %d-%02d-%02d"
-					       " %02d:%02d ",
-						perms, owner_name,
-						strtol(head->size, NULL, 8),
-						1900 + time->tm_year,
-						1 + time->tm_mon,
-						time->tm_mday, time->tm_hour,
-						time->tm_min);
-					strcpy(perms, "drwxrwxrwx");
-					free(owner_name);
-				}
-				if (head->prefix[0]) {
-					strcat(head->prefix, "/");
-				}
-				printf("%.155s%.100s\n", head->prefix,
-					head->name);
+            // Print the prefix and name of the file
+            printf("%.155s%.100s\n", head->prefix, head->name); 
 				head->prefix[strlen(head->prefix)] = '\0';
-				if (file_size > 0) {
-				 	block_counter = 
-					(((file_size / 512) + 1) * 512);
-					lseek(fd, block_counter, SEEK_CUR);
-				}
-				free(path);
-			}
 
-		}
-		//case for the t option being selected
-		else if (file_size) {
-			lseek(fd, ((file_size / 512) + 1) * 512, SEEK_CUR);
-			free(path);
-		}
-	}
-	free(head);
+            // If the file size is greater than 0, calculate 
+            //the number of blocks and seek to the next block
+            if (file_size > 0) { 
+                block_counter = (((file_size / 512) + 1) * 512);
+                lseek(fd, block_counter, SEEK_CUR);
+            }
+            // Free the memory allocated for the path  
+            free(path);  
+        }
+        // If the file size is not 0, seek to the 
+        //next block and free the memory allocated for the path
+        else if (file_size) {              
+            lseek(fd, ((file_size / 512) + 1) * 512, SEEK_CUR);
+            free(path);
+        }        
+    }
+    // Free the memory allocated for the header
+    free(head);
 }
 
 
-
-// void print_archive(int fd, char *argv[], 
-// int argc, char flag) {
-//     int file_size, padding, i;
-//     char *file_path;
-//     struct header *header = (struct header*)malloc(sizeof(struct header));
-//     while (0 < read(fd, header, head)) {
-//         if (!header->name[0]) {
-//             break;
-//         }
-//         file_path = path_maker(header->prefix, header->name);
-//         file_size = strtol(header->size, NULL, OCTAL);
-//         if (argc < 4 || (tin(file_path, *header->typeflag, 
-// 		argv, argc) && flag == 't')) {
-//             if (is_valid_header(header, S_flag)) {
-//                 if (flag == 't') {
-//                     print_file(fd, header, v_flag, argv, argc);
-//                 }
-//             } else {
-//                 fprintf(stderr, "Malformed header found. Bailing.\n");
-//                 free(file_path);
-//                 free(header);
-//                 exit(7);
-//             }
-//             if (file_size > 0) {
-//                 padding = (((file_size / head) + 1) * head) - file_size;
-//                 skip_file(fd, padding);
-//             }
-//             free(file_path);
-//         } else if (file_size) {
-//             skip_file(fd, ((file_size / head) + 1) * head);
-//             free(file_path);
-//         }
-//     }
-//     free(header);
-// }
-
-// int is_valid_header(struct header *header, char S_flag) {
-//     int checksum, i;
-//     checksum = 0;
-//     for (i = 0; i < head; i++) {
-//         if (i < CHKSUM_OFF || i >= CHKSUM_OFF + CHKSUM) {
-//             checksum += (unsigned char)((unsigned char*)(header))[i];
-//         } else {
-//             checksum += ' ';
-//         }
-//     }
-//     return (checksum == strtol(header->chksum, NULL, OCTAL)
-//         && strncmp(header->magic, "ustar", MAGIC - 1)
-//         && (!S_flag || (strncmp(header->version, "00", VERSION)
-//         || strncmp(header->magic, "ustar\0", MAGIC)
-//         || (header->uid[0] < '0' || header->uid[0] > '7'))));
-// }
-
-
-       
-// void print_permissions(mode_t mode, char *permissions) {
-//     permissions[0] = '-';
-//     if (S_ISDIR(mode)) {
-//         permissions[0] = 'd';
-//     } else if (S_ISLNK(mode)) {
-//         permissions[0] = 'l';
-//     }
-//     if (mode & S_IRUSR) {
-//         permissions[1] = 'r';
-//     }
-//     if (mode & S_IWUSR) {
-//         permissions[2] = 'w';
-//     }
-//     if (mode & S_IXUSR) {
-//         permissions[3] = 'x';
-//     }
-//     if (mode & S_IRGRP) {
-//         permissions[4] = 'r';
-//     }
-//     if (mode & S_IWGRP) {
-//         permissions[5] = 'w';
-//     }
-//     if (mode & S_IXGRP) {
-//         permissions[6] = 'x';
-//     }
-//     if (mode & S_IROTH) {
-//         permissions[7] = 'r';
-//     }
-//     if (mode & S_IWOTH) {
-//         permissions[8] = 'w';
-//     }
-//     if (mode & S_IXOTH) {
-//         permissions[9] = 'x';
-//     }
-//     permissions[10] = '\0';
-// }
-
-
-// void print_file(int fd, struct header *header, 
-// char flag, char *argv[], int argc) {
-//     int fdout;
-//     char *path;
-//     int fsize = strtol(header->size, NULL, OCTAL);
-
-//     if (*(header->typeflag) == '5') {
-//         // directory
-//         if (flag == 't') {
-//             printf("%s\n", header->name);
-//         } else {
-//             printf("x %s\n", header->name);
-//         }
-//     } else {
-//         // regular file
-//         if (flag == 't') {
-//             printf("%s\n", header->name);
-//         } else {
-//             printf("x %s\n", header->name);
-//             path = path_maker(header->prefix, header->name);
-//             fdout = creat(path, 0666);
-//             free(path);
-//             if (fdout < 0) {
-//                 perror("creat");
-//                 exit(1);
-//             }
-//             copy(fd, fdout, fsize);
-//             close(fdout);
-//             if (chmod(header->name, strtol(header->mode, NULL, 8)) < 0) {
-//                 perror("chmod");
-//                 exit(1);
-//             }
-//             if (chown(header->name, strtol(header->uid, NULL, 8), 
-// 			strtol(header->gid, NULL, 8)) < 0) {
-//                 perror("chown");
-//                 exit(1);
-//             }
-//         }
-//     }
-// }
-
-// void skip_file(int fd, int fsize) {
-//     int n;
-//     char buf[BUFSIZ];
-
-//     while (fsize > 0) {
-//         n = (fsize < BUFSIZ) ? fsize : BUFSIZ;
-//         if (read(fd, buf, n) != n) {
-//             perror("read");
-//             exit(1);
-//         }
-//         fsize -= n;
-//     }
-// }
-
+/*This function takes a file name, a 
+file type, an array of command line arguments, 
+and the number of arguments as input parameters.*/
 int t_arg(char *file, char type, char *argv[], int argc) {
     int i, j;
+    // Iterate through the command line 
+    //arguments starting from the fourth argument.
     for (i = 3; i < argc; i++) {
+        // Get the current prefix from the command line arguments.
         char* prefix = argv[i];
+        // Set the current file path to the file name.
         char* path = file;
+        // Iterate through the current prefix and 
+        //compare it to the beginning of the file path.
         for (j = 0; j < strlen(prefix); j++) {
+            // If there is a mismatch between the prefix
+            //and the file path, break out of the loop.
             if (prefix[j] != path[j]) {
                 break;
             }
         }
+        // If the prefix matches the beginning of the file path and the next 
+        /*character in the path is a forward 
+        slash or null terminator, return true.*/
         if (j == strlen(prefix) && (path[j] == '/' || path[j] == '\0')) {
             return 1;
         }
     }
+    // If no matches are found, return false.
     return 0;
 }
 
 
+/*Function is essentially checking to see if 
+the instance of a header encountered is valid*/
+int is_header_valid(struct header *head) {
+    int check_sum = 0;
+    int i;
+    for (i = 0; i < 512; i++) {
+        if (i < CHKSUM_THRESHOLD  || i >= CHKSUM_THRESHOLD + STRUCT_CHKSUM) {
+            check_sum += (unsigned char)((unsigned char*)(head))[i];
+        } else {
+            check_sum  += ' ';
+        }
+    }
+    if (check_sum != strtol(head->chksum, NULL, 8) ||
+        strncmp(head->magic, "ustar", STRUCT_MAGIC - 1) ||
+        (0 && (strncmp(head->version, "00", STRUCT_VERSION) ||
+        strncmp(head->magic, "ustar\0", STRUCT_MAGIC) ||
+        (head->uid[0] < '0' || head->uid[0] > '7')))) {
+        return 0;
+    }
+    return 1;
+}
+
 /* This function helps us construct a full path from a header that has its
  * pathname split into the prefix section of the header. */
-char *path_maker(char *prefix, char *name) {
-	char *path = (char*)calloc(strlen(prefix) + strlen(name) + 1,
-		sizeof(char));
+char *path_concatenate(char *prefix, char *name) {
+    int len_prefix = strlen(prefix); 
+    int len_name = strlen(name);
+    // Allocate memory for the new path string
+    // extra chars for null chars and /'s
+	char *path = (char*)calloc(len_prefix + len_name + 1,
+		+300);
+    // Copy prefix to new path string, if prefix is not empty
 	if (prefix[0]) {
 		strcpy(path, prefix);
 		strcat(path, "/");
 	}
+    // Concatenate name to new path string
 	strcat(path, name);
+	strcat(path, "\0");
 	return path;
 }
-
